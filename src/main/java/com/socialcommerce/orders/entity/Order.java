@@ -1,57 +1,67 @@
 package com.socialcommerce.orders.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "orders")
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true, length = 36)
     private String uuid;
 
-    @Column(nullable = false)
+    @Column(name = "buyer_id", nullable = false)
     private Long buyerId;
 
+    @Column(name = "address_id")
     private Long addressId;
+
+    @Column(name = "total_amount", nullable = false, precision = 12, scale = 2)
     private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
-    private OrderStatus status = OrderStatus.PLACED;
+    @Column(nullable = false)
+    private OrderStatus status;
 
     @Enumerated(EnumType.STRING)
-    private PaymentStatus paymentStatus = PaymentStatus.PENDING;
+    @Column(name = "payment_status", nullable = false)
+    private PaymentStatus paymentStatus;
 
+    @Column(name = "payment_method", length = 50)
     private String paymentMethod;
+
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @OneToMany(mappedBy = "orderId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderItem> items;
+
     @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-        if (uuid == null) uuid = java.util.UUID.randomUUID().toString();
+    public void prePersist() {
+        this.uuid = UUID.randomUUID().toString();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+        if (this.status == null) this.status = OrderStatus.PLACED;
+        if (this.paymentStatus == null) this.paymentStatus = PaymentStatus.PENDING;
     }
 
     @PreUpdate
-    protected void onUpdate() { updatedAt = LocalDateTime.now(); }
-
-    public enum OrderStatus {
-        PLACED, SHIPPED, DELIVERED, CANCELLED, RETURN_REQUESTED
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
     }
 
-    public enum PaymentStatus {
-        PENDING, MOCK_PAID, FAILED, REFUNDED
-    }
+    public enum OrderStatus { PLACED, SHIPPED, DELIVERED, CANCELLED, RETURN_REQUESTED }
+    public enum PaymentStatus { PENDING, MOCK_PAID, FAILED, REFUNDED }
 }

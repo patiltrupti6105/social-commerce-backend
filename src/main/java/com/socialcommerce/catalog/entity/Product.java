@@ -6,7 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
+import java.util.ArrayList;
+import java.util.List;
 @Entity
 @Table(name = "products")
 @Data
@@ -17,7 +18,8 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @OneToMany(mappedBy = "product")
+    private List<ProductVariant> variants;
     @Column(unique = true, nullable = false)
     private String uuid;
 
@@ -38,7 +40,7 @@ public class Product {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProductStatus status = ProductStatus.DRAFT;
-
+     
     private Double avgRating = 0.0;
     private Integer reviewCount = 0;
     private Integer wishlistCount = 0;
@@ -61,4 +63,7 @@ public class Product {
     public enum ProductStatus {
         DRAFT, PENDING_REVIEW, ACTIVE, REJECTED, ARCHIVED
     }
+ // Add to Product.java
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    private List<ProductImage> images = new ArrayList<>();
 }

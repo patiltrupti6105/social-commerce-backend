@@ -3,16 +3,18 @@ package com.socialcommerce.auth;
 import com.socialcommerce.auth.dto.*;
 import com.socialcommerce.common.response.ApiResponse;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserDTO>> register(@Valid @RequestBody RegisterRequest request) {
@@ -30,7 +32,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<?>> logout(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<ApiResponse<Void>> logout(@RequestHeader("Authorization") String token) {
         return ResponseEntity.ok(ApiResponse.success(null, "TODO: implement logout"));
     }
 }

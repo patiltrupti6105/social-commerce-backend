@@ -1,9 +1,7 @@
 package com.socialcommerce.catalog.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "product_images")
@@ -16,9 +14,13 @@ public class ProductImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long productId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
+    @Column(name = "image_url", nullable = false, length = 500)
     private String imageUrl;
+
+    @Column(name = "display_order")
     private Integer displayOrder = 0;
 }

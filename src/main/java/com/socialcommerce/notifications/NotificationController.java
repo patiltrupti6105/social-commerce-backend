@@ -15,12 +15,12 @@ public class NotificationController {
     public ResponseEntity<ApiResponse<?>> getNotifications(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: get notifications (Pageable)"));
+        return ResponseEntity.ok(ApiResponse.success( "TODO: get notifications (Pageable)"));
     }
 
     @GetMapping("/unread-count")
     public ResponseEntity<ApiResponse<?>> getUnreadCount() {
-        return ResponseEntity.ok(ApiResponse.success(0L, "TODO: get unread count"));
+        return ResponseEntity.ok(ApiResponse.success("TODO: get unread count"));
     }
 
     @GetMapping("/stream")
@@ -33,11 +33,11 @@ public class NotificationController {
 
     @PutMapping("/{id}/read")
     public ResponseEntity<ApiResponse<?>> markRead(@PathVariable String id) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: mark as read"));
+        return ResponseEntity.ok(ApiResponse.success( "TODO: mark as read"));
     }
 
     @PutMapping("/read-all")
     public ResponseEntity<ApiResponse<?>> markAllRead() {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: mark all as read"));
+        return ResponseEntity.ok(ApiResponse.success( "TODO: mark all as read"));
     }
 }

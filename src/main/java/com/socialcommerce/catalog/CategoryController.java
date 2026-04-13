@@ -14,6 +14,6 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<?>> listCategories() {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: list categories (public)"));
+        return ResponseEntity.ok(ApiResponse.success( "TODO: list categories (public)"));
     }
 }

@@ -1,13 +1,27 @@
 package com.socialcommerce.catalog;
 
-import com.socialcommerce.catalog.entity.Product;
 import com.socialcommerce.catalog.entity.ProductVariant;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.socialcommerce.catalog.repository.ProductVariantRepository;
+import com.socialcommerce.common.exception.ResourceNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
-public interface ProductService {
-    ProductVariant getProductVariantById(Long variantId);
-    void approveProduct(Long id);
-    void rejectProduct(Long id, String reason);
-    Page<Product> getPendingProducts(Pageable pageable);
+@Service
+@RequiredArgsConstructor
+public class ProductService {
+
+    private final ProductVariantRepository productVariantRepository;
+
+    // Add this method — CheckoutService calls it
+    public ProductVariant getProductVariantById(Long variantId) {
+        return productVariantRepository.findById(variantId)
+            .orElseThrow(() -> new ResourceNotFoundException("Variant not found: " + variantId));
+    }
+
+    // Add this method — CheckoutService calls it
+    public ProductVariant saveVariant(ProductVariant variant) {
+        return productVariantRepository.save(variant);
+    }
+
+    // ... rest of Person 2's existing methods stay here
 }
