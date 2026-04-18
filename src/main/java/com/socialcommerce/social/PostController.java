@@ -1,62 +1,72 @@
 package com.socialcommerce.social;
 
-import com.socialcommerce.common.response.ApiResponse;
-import org.springframework.http.ResponseEntity;
+import com.socialcommerce.social.document.Post;
+import com.socialcommerce.social.PostService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/v1/posts")
+@RequestMapping("/api/posts")
 public class PostController {
 
-    // TODO P3: inject PostService, FeedService
+    @Autowired
+    private PostService postService;
 
-    @GetMapping("/feed")
-    public ResponseEntity<ApiResponse<?>> getFeed(@RequestParam(required = false) String cursor) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: personalized feed"));
-    }
-
-    @GetMapping("/explore")
-    public ResponseEntity<ApiResponse<?>> getExplore() {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: trending posts"));
-    }
-
+    // ✅ Create Post
     @PostMapping
-    public ResponseEntity<ApiResponse<?>> createPost(@RequestBody Object request) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: create post"));
+    public Post createPost(@RequestBody Post post) {
+        return postService.createPost(post);
     }
 
-    @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponse<?>> getPost(@PathVariable String postId) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: get post by id"));
+    // ✅ Get Feed (posts of followed users)
+    @PostMapping("/feed")
+    public Page<Post> getFeed(
+            @RequestBody List<String> authorIds,
+            @RequestParam int page,
+            @RequestParam int size) {
+
+        return postService.getFeed(authorIds, page, size);
+    }
+    
+    @GetMapping("/explore")
+    public List<Post> explore() {
+        return postService.getExplorePosts();
+    }
+    
+    @PutMapping("/like/{postId}/{userId}")
+    public Post likePost(@PathVariable String postId,
+                         @PathVariable String userId) {
+        return postService.toggleLike(postId, userId);
     }
 
+    // ✅ Get posts of a user
+    @GetMapping("/user/{authorId}")
+    public Page<Post> getUserPosts(
+            @PathVariable String authorId,
+            @RequestParam int page,
+            @RequestParam int size) {
+
+        return postService.getUserPosts(authorId, page, size);
+    }
+
+    // ✅ Report a post
+    @PutMapping("/report/{postId}")
+    public Post reportPost(@PathVariable String postId) {
+        return postService.reportPost(postId);
+    }
+
+    // ✅ Get reported posts (admin)
+    @GetMapping("/reported")
+    public List<Post> getReportedPosts() {
+        return postService.getReportedPosts();
+    }
+
+    // ✅ Delete post
     @DeleteMapping("/{postId}")
-    public ResponseEntity<ApiResponse<?>> deletePost(@PathVariable String postId) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: delete post (owner or ADMIN)"));
-    }
-
-    @PostMapping("/{postId}/like")
-    public ResponseEntity<ApiResponse<?>> likePost(@PathVariable String postId) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: toggle like"));
-    }
-
-    @PostMapping("/{postId}/report")
-    public ResponseEntity<ApiResponse<?>> reportPost(@PathVariable String postId) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: report post"));
-    }
-
-    @PostMapping("/{postId}/comments")
-    public ResponseEntity<ApiResponse<?>> addComment(@PathVariable String postId, @RequestBody Object request) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: add comment"));
-    }
-
-    @GetMapping("/{postId}/comments")
-    public ResponseEntity<ApiResponse<?>> getComments(@PathVariable String postId) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: get comments"));
-    }
-
-    @DeleteMapping("/{postId}/comments/{commentId}")
-    public ResponseEntity<ApiResponse<?>> deleteComment(@PathVariable String postId, @PathVariable String commentId) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: delete comment (owner or ADMIN)"));
+    public void deletePost(@PathVariable String postId) {
+        postService.deletePost(postId);
     }
 }

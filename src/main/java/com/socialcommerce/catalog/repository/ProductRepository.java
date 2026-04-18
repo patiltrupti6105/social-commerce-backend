@@ -1,4 +1,4 @@
-package com.socialcommerce.catalog.repository;
+/*package com.socialcommerce.catalog.repository;
 
 import com.socialcommerce.catalog.entity.Product;
 import org.springframework.data.domain.Page;
@@ -17,4 +17,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Query("SELECT p FROM Product p WHERE p.status = 'ACTIVE' AND " +
            "(:keyword IS NULL OR LOWER(p.title) LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Product> searchProducts(String keyword, Pageable pageable);
+}
+*/
+package com.socialcommerce.catalog.repository;
+
+import com.socialcommerce.catalog.entity.Product;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface ProductRepository extends JpaRepository<Product, Long> {
+
+    List<Product> findByStatus(String status);
+    List<Product> findByTitleContainingIgnoreCase(String keyword);
 }

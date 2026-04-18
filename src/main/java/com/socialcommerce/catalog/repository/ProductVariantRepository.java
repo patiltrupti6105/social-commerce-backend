@@ -1,4 +1,4 @@
-package com.socialcommerce.catalog.repository;
+/*package com.socialcommerce.catalog.repository;
 
 import com.socialcommerce.catalog.entity.ProductVariant;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,3 +9,19 @@ import java.util.List;
 public interface ProductVariantRepository extends JpaRepository<ProductVariant, Long> {
     List<ProductVariant> findByProductId(Long productId);
 }
+*/
+
+
+
+package com.socialcommerce.catalog.repository;
+
+import com.socialcommerce.catalog.entity.ProductVariant;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface ProductVariantRepository extends JpaRepository<ProductVariant, Long> {
+
+    List<ProductVariant> findByProductId(Long productId);
+}
+

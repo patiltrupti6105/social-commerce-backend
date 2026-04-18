@@ -12,7 +12,7 @@ import com.socialcommerce.orders.repository.*;
 import com.socialcommerce.payment.MockPaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
+import com.socialcommerce.notifications.NotificationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,9 +32,7 @@ public class CheckoutService {
     private final OrderItemRepository orderItemRepository;
     private final AddressRepository addressRepository;
     private final ProductService productService;      // Person 2's service
-    // NOT final — optional until Person 3 implements it
-    @Autowired(required = false)
-    private  NotificationService notificationService; // Person 3's service
+    private  NotificationService notificationService; 
     private final MockPaymentService mockPaymentService;
     private final OrderService orderService;
 
@@ -121,12 +119,10 @@ public class CheckoutService {
         if (notificationService != null) {
             try {
                 notificationService.createNotification(
-                    String.valueOf(userId),
-                    Notification.NotificationType.ORDER_PLACED,
-                    "system",
-                    "System",
-                    order.getUuid(),
-                    "Your order has been placed!"
+                    userId,
+                     "Your order has been placed!",
+                    NotificationType.ORDER_PLACED.toString()
+                   
                 );
             } catch (Exception e) {
                 log.warn("Notification failed, skipping: {}", e.getMessage());

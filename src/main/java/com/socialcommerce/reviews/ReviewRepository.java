@@ -1,4 +1,4 @@
-package com.socialcommerce.reviews;
+/*package com.socialcommerce.reviews;
 
 import com.socialcommerce.reviews.entity.Review;
 import org.springframework.data.domain.Page;
@@ -10,4 +10,16 @@ import org.springframework.stereotype.Repository;
 public interface ReviewRepository extends JpaRepository<Review, Long> {
     Page<Review> findByProductId(Long productId, Pageable pageable);
     boolean existsByBuyerIdAndProductId(Long buyerId, Long productId);
+}
+*/
+package com.socialcommerce.reviews;
+
+import com.socialcommerce.reviews.entity.Review;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface ReviewRepository extends JpaRepository<Review, Long> {
+
+    List<Review> findByProductId(Long productId);
 }

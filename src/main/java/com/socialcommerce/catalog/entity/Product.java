@@ -1,4 +1,4 @@
-package com.socialcommerce.catalog.entity;
+/*package com.socialcommerce.catalog.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -66,4 +66,50 @@ public class Product {
  // Add to Product.java
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private List<ProductImage> images = new ArrayList<>();
+}
+*/
+package com.socialcommerce.catalog.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "products")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Product {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String uuid;
+
+    private Long sellerId;
+
+    private Long categoryId;
+
+    private String title;
+
+    private String description;
+
+    private Double price;
+
+    private String status;
+
+    private Double avgRating;
+
+    private Integer reviewCount;
+
+    private Integer wishlistCount;
+
+    private String rejectionReason;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 }

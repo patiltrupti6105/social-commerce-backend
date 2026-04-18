@@ -1,10 +1,17 @@
 package com.socialcommerce.auth.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
 
     @Id
@@ -32,88 +39,12 @@ public class User {
 
     private LocalDateTime createdAt;
 
-    public User() {
-    }
-
-    public User(Long id, String uuid, String name, String email, String passwordHash, Role role, Boolean isActive, LocalDateTime createdAt) {
-        this.id = id;
-        this.uuid = uuid;
-        this.name = name;
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.role = role;
-        this.isActive = isActive;
-        this.createdAt = createdAt;
-    }
-
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (uuid == null) uuid = java.util.UUID.randomUUID().toString();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public Boolean getIsActive() {
-        return isActive;
-    }
-
-    public void setIsActive(Boolean isActive) {
-        this.isActive = isActive;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+        if (uuid == null) {
+            uuid = java.util.UUID.randomUUID().toString();
+        }
     }
 
     public enum Role {

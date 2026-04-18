@@ -1,4 +1,4 @@
-package com.socialcommerce.reviews;
+/*package com.socialcommerce.reviews;
 
 import com.socialcommerce.common.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
@@ -25,5 +25,31 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<ApiResponse<?>> deleteReview(@PathVariable Long productId, @PathVariable Long reviewId) {
         return ResponseEntity.ok(ApiResponse.success(null, "TODO: delete review (ADMIN or owner)"));
+    }
+}
+*/
+import com.socialcommerce.reviews.entity.Review;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/reviews")
+public class ReviewController {
+
+    private final ReviewService reviewService;
+
+    public ReviewController(ReviewService reviewService) {
+        this.reviewService = reviewService;
+    }
+
+    @PostMapping
+    public Review addReview(@RequestBody Review review) {
+        return reviewService.addReview(review);
+    }
+
+    @GetMapping("/{productId}")
+    public List<Review> getReviews(@PathVariable Long productId) {
+        return reviewService.getReviews(productId);
     }
 }

@@ -1,4 +1,4 @@
-package com.socialcommerce.catalog.entity;
+/*package com.socialcommerce.catalog.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,4 +29,31 @@ public class ProductVariant {
     private String sku;
 
     private BigDecimal priceOverride;
+}*/
+package com.socialcommerce.catalog.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "product_variants")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProductVariant {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private Long productId;
+
+    private String size;
+
+    private String color;
+
+    private Integer stock;
+
+    private Double price;
 }

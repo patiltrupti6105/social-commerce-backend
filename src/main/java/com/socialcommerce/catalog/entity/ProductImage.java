@@ -1,4 +1,4 @@
-package com.socialcommerce.catalog.entity;
+/*package com.socialcommerce.catalog.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,4 +23,27 @@ public class ProductImage {
 
     @Column(name = "display_order")
     private Integer displayOrder = 0;
+}*/
+package com.socialcommerce.catalog.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "product_images")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProductImage {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private Long productId;
+
+    private String imageUrl;
+
+    private boolean isPrimary;
 }

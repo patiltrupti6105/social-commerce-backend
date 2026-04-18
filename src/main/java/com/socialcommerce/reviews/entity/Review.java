@@ -1,4 +1,4 @@
-package com.socialcommerce.reviews.entity;
+/*package com.socialcommerce.reviews.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -36,3 +36,31 @@ public class Review {
     private Boolean isVerifiedPurchase = false;
     private LocalDateTime createdAt = LocalDateTime.now();
 }
+*/
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "reviews")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class Review {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private Long productId;
+
+    private Long buyerId;
+
+    private int rating;
+
+    private String comment;
+
+    private LocalDateTime createdAt;
+}
+

@@ -1,14 +1,16 @@
 package com.socialcommerce.users;
 
 import com.socialcommerce.common.response.ApiResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
+@RequiredArgsConstructor
 public class FollowController {
 
-    // TODO P1: inject FollowService
+    private final FollowService followService;
 
     @PostMapping("/{uuid}/follow")
     public ResponseEntity<ApiResponse<?>> follow(@PathVariable String uuid) {

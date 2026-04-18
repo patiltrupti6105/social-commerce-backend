@@ -9,7 +9,15 @@ import java.util.List;
 
 @Repository
 public interface PostRepository extends MongoRepository<Post, String> {
+
+    // Feed (posts from followed users)
     Page<Post> findByAuthorIdIn(List<String> authorIds, Pageable pageable);
+
+    // Posts of a single user
     Page<Post> findByAuthorId(String authorId, Pageable pageable);
+
+    // Moderation (reported posts)
     List<Post> findByIsReportedTrue();
+    
+    List<Post> findTop10ByOrderByLikesCountDesc();
 }

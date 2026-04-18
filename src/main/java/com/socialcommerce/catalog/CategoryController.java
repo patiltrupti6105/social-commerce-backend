@@ -1,4 +1,4 @@
-package com.socialcommerce.catalog;
+/*package com.socialcommerce.catalog;
 
 import com.socialcommerce.common.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
@@ -15,5 +15,29 @@ public class CategoryController {
     @GetMapping
     public ResponseEntity<ApiResponse<?>> listCategories() {
         return ResponseEntity.ok(ApiResponse.success( "TODO: list categories (public)"));
+    }
+}
+*/
+package com.socialcommerce.catalog;
+
+import com.socialcommerce.catalog.entity.Category;
+import com.socialcommerce.catalog.repository.CategoryRepository;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/categories")
+public class CategoryController {
+
+    private final CategoryRepository categoryRepository;
+
+    public CategoryController(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
+
+    @GetMapping
+    public List<Category> getAllCategories() {
+        return categoryRepository.findAll();
     }
 }

@@ -1,4 +1,4 @@
-package com.socialcommerce.catalog;
+/*package com.socialcommerce.catalog;
 
 import com.socialcommerce.common.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
@@ -50,5 +50,33 @@ public class ProductController {
     @GetMapping("/seller/my")
     public ResponseEntity<ApiResponse<?>> getMyProducts() {
         return ResponseEntity.ok(ApiResponse.success( "TODO: get seller's own products"));
+    }
+}
+*/
+package com.socialcommerce.catalog;
+
+import com.socialcommerce.catalog.entity.Product;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/products")
+public class ProductController {
+
+    private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
+
+    @PostMapping
+    public Product createProduct(@RequestBody Product product) {
+        return productService.createProduct(product);
+    }
+
+    @GetMapping
+    public List<Product> getProducts() {
+        return productService.getActiveProducts();
     }
 }
