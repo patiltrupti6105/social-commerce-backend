@@ -1,23 +1,38 @@
 package com.socialcommerce.notifications;
 
 import com.socialcommerce.notifications.document.Notification;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
+import java.util.List;
 
-public interface NotificationService {
+@Service
+@RequiredArgsConstructor
+public class NotificationService {
 
-    void createNotification(String recipientId,
-                            Notification.NotificationType type,
-                            String actorId,
-                            String actorName,
-                            String entityId,
-                            String message);
+    private final NotificationRepository notificationRepository;
+    private final NotificationEmitterRegistry emitterRegistry;
 
-    Page<Notification> getNotifications(Long userId, Pageable pageable);
+    public Notification createNotification(Long userId, String message, String type) {
+        Notification n = new Notification();
+        n.setUserId(userId);
+        n.setMessage(message);
+        n.setType(type);
+        n.setCreatedAt(LocalDateTime.now());
+        n.setRead(false);
+        Notification saved = notificationRepository.save(n);
+        emitterRegistry.sendNotification(userId, saved);
+        return saved;
+    }
 
-    void markAsRead(String notificationId, Long userId);
+    public List<Notification> getUserNotifications(Long userId) {
+        return notificationRepository.findByUserId(userId);
+    }
 
-    void markAllAsRead(Long userId);
-
-    long getUnreadCount(Long userId);
+    public void markAsRead(String notificationId) {
+        Notification n = notificationRepository.findById(notificationId)
+            .orElseThrow(() -> new RuntimeException("Notification not found"));
+        n.setRead(true);
+        notificationRepository.save(n);
+    }
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -41,7 +42,9 @@ public class User {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (uuid == null) uuid = java.util.UUID.randomUUID().toString();
+        if (uuid == null) {
+            uuid = java.util.UUID.randomUUID().toString();
+        }
     }
 
     public enum Role {

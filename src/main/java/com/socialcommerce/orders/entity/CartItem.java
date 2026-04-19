@@ -1,17 +1,13 @@
 package com.socialcommerce.orders.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "cart_items",
     uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "variant_id"}))
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class CartItem {
 
     @Id
@@ -27,5 +23,11 @@ public class CartItem {
     @Column(nullable = false)
     private Integer quantity;
 
-    private LocalDateTime addedAt = LocalDateTime.now();
+    @Column(name = "added_at")
+    private LocalDateTime addedAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.addedAt = LocalDateTime.now();
+    }
 }

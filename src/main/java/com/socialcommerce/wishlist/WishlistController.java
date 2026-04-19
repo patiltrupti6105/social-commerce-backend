@@ -1,27 +1,41 @@
 package com.socialcommerce.wishlist;
 
+import com.socialcommerce.wishlist.entity.WishlistItem;
 import com.socialcommerce.common.response.ApiResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import com.socialcommerce.wishlist.WishlistItemDTO;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/wishlist")
+@RequiredArgsConstructor
 public class WishlistController {
 
-    // TODO P3: inject WishlistService
+    private final WishlistService wishlistService;
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<WishlistItem>> addToWishlist(@RequestParam Long productId) {
+        return ResponseEntity.ok(ApiResponse.success(
+            wishlistService.addToWishlist(currentUserId(), productId)));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<?>> removeFromWishlist(@RequestParam Long productId) {
+        wishlistService.removeFromWishlist(currentUserId(), productId);
+        return ResponseEntity.ok(ApiResponse.success(null, "Removed from wishlist"));
+    }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<?>> getWishlist() {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: get wishlist"));
+    public ResponseEntity<ApiResponse<List<WishlistItemDTO>>> getWishlist() {
+        return ResponseEntity.ok(ApiResponse.success(
+            wishlistService.getWishlistEnriched(currentUserId())
+        ));
     }
 
-    @PostMapping("/{productId}")
-    public ResponseEntity<ApiResponse<?>> addToWishlist(@PathVariable Long productId) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: add to wishlist"));
-    }
-
-    @DeleteMapping("/{productId}")
-    public ResponseEntity<ApiResponse<?>> removeFromWishlist(@PathVariable Long productId) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: remove from wishlist"));
+    private Long currentUserId() {
+        return Long.parseLong((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
     }
 }

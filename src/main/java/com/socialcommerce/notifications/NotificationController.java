@@ -1,43 +1,41 @@
 package com.socialcommerce.notifications;
 
+import com.socialcommerce.notifications.document.Notification;
 import com.socialcommerce.common.response.ApiResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/notifications")
+@RequiredArgsConstructor
 public class NotificationController {
 
-    // TODO P3: inject NotificationService, NotificationEmitterRegistry
+    private final NotificationService notificationService;
+    private final NotificationEmitterRegistry emitterRegistry;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<?>> getNotifications(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: get notifications (Pageable)"));
+    public ResponseEntity<ApiResponse<List<Notification>>> getUserNotifications() {
+        Long userId = currentUserId();
+        return ResponseEntity.ok(ApiResponse.success(notificationService.getUserNotifications(userId)));
     }
 
-    @GetMapping("/unread-count")
-    public ResponseEntity<ApiResponse<?>> getUnreadCount() {
-        return ResponseEntity.ok(ApiResponse.success(0L, "TODO: get unread count"));
+    @PutMapping("/{notificationId}/read")
+    public ResponseEntity<ApiResponse<?>> markAsRead(@PathVariable String notificationId) {
+        notificationService.markAsRead(notificationId);
+        return ResponseEntity.ok(ApiResponse.success(null, "Marked as read"));
     }
 
-    @GetMapping("/stream")
-    public SseEmitter streamNotifications() {
-        SseEmitter emitter = new SseEmitter(30_000L);
-        // TODO P3: resolve current user id and registry.register(userId, emitter)
-        emitter.complete();
-        return emitter;
+    @GetMapping("/subscribe")
+    public SseEmitter subscribe() {
+        Long userId = currentUserId();
+        return emitterRegistry.addEmitter(userId);
     }
 
-    @PutMapping("/{id}/read")
-    public ResponseEntity<ApiResponse<?>> markRead(@PathVariable String id) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: mark as read"));
-    }
-
-    @PutMapping("/read-all")
-    public ResponseEntity<ApiResponse<?>> markAllRead() {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: mark all as read"));
+    private Long currentUserId() {
+        return Long.parseLong((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
     }
 }

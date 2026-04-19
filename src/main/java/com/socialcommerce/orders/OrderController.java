@@ -1,32 +1,63 @@
 package com.socialcommerce.orders;
 
 import com.socialcommerce.common.response.ApiResponse;
+import com.socialcommerce.orders.dto.*;
+import com.socialcommerce.orders.service.*;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/v1/orders")
+@RequiredArgsConstructor
 public class OrderController {
 
-    // TODO P4: inject OrderService, CheckoutService
+    private final CheckoutService checkoutService;
+    private final OrderService orderService;
 
-    @PostMapping("/checkout")
-    public ResponseEntity<ApiResponse<?>> checkout(@RequestBody Object request) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: checkout"));
+    @PostMapping("/api/v1/orders/checkout")
+    public ResponseEntity<ApiResponse<OrderDTO>> checkout(@Valid @RequestBody CheckoutRequest request) {
+        return ResponseEntity.ok(ApiResponse.success(checkoutService.checkout(currentUserId(), request)));
     }
 
-    @GetMapping
-    public ResponseEntity<ApiResponse<?>> getOrders() {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: get order history (buyer)"));
+    @GetMapping("/api/v1/orders")
+    public ResponseEntity<ApiResponse<Page<OrderDTO>>> getMyOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(ApiResponse.success(orderService.getBuyerOrders(currentUserId(), page, size)));
     }
 
-    @GetMapping("/{orderId}")
-    public ResponseEntity<ApiResponse<?>> getOrder(@PathVariable Long orderId) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: get order detail"));
+    @GetMapping("/api/v1/orders/{orderId}")
+    public ResponseEntity<ApiResponse<OrderDTO>> getOrder(@PathVariable Long orderId) {
+        return ResponseEntity.ok(ApiResponse.success(orderService.getOrderById(orderId, currentUserId())));
     }
 
-    @PutMapping("/{orderId}/cancel")
-    public ResponseEntity<ApiResponse<?>> cancelOrder(@PathVariable Long orderId) {
-        return ResponseEntity.ok(ApiResponse.success(null, "TODO: cancel order"));
+    @PutMapping("/api/v1/orders/{orderId}/cancel")
+    public ResponseEntity<ApiResponse<OrderDTO>> cancelOrder(@PathVariable Long orderId) {
+        return ResponseEntity.ok(ApiResponse.success(orderService.cancelOrder(orderId, currentUserId())));
+    }
+
+    @GetMapping("/api/v1/seller/orders")
+    public ResponseEntity<ApiResponse<List<OrderItemDTO>>> getSellerOrders(
+            @RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(ApiResponse.success(orderService.getSellerOrderItems(currentUserId())));
+    }
+
+    @PutMapping("/api/v1/seller/orders/{orderId}/ship")
+    public ResponseEntity<ApiResponse<OrderDTO>> shipOrder(@PathVariable Long orderId) {
+        return ResponseEntity.ok(ApiResponse.success(orderService.shipOrder(orderId, currentUserId())));
+    }
+
+    @PutMapping("/api/v1/seller/orders/{orderId}/deliver")
+    public ResponseEntity<ApiResponse<OrderDTO>> deliverOrder(@PathVariable Long orderId) {
+        return ResponseEntity.ok(ApiResponse.success(orderService.deliverOrder(orderId, currentUserId())));
+    }
+
+    private Long currentUserId() {
+        return Long.parseLong((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
     }
 }
