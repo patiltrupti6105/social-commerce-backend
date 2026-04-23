@@ -18,6 +18,12 @@ public class Post {
     private List<String> likedByUserIds = new ArrayList<>();
     private int likesCount = 0;
     
+    public List<String> getMediaUrls() { return mediaUrls; }
+    public void setMediaUrls(List<String> mediaUrls) { this.mediaUrls = mediaUrls; }
+
+    public List<Long> getTaggedProductIds() { return taggedProductIds; }
+    public void setTaggedProductIds(List<Long> taggedProductIds) { this.taggedProductIds = taggedProductIds; }
+
     public int getCommentsCount() {
         return commentsCount;
     }
@@ -42,6 +48,12 @@ public class Post {
     public void setLikedByUserIds(List<String> likedByUserIds) {
         this.likedByUserIds = likedByUserIds;
     }
+
+    // Image URLs for the post (stored as Cloudinary/S3 URLs or any public URL)
+    private List<String> mediaUrls = new ArrayList<>();
+
+    // Product IDs tagged in this post (MySQL product IDs as Longs)
+    private List<Long> taggedProductIds = new ArrayList<>();
 
     // ✅ NEW FIELDS (important)
     private LocalDateTime createdAt;
