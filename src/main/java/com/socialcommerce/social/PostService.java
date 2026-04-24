@@ -58,10 +58,8 @@ public class PostService {
     }
 
     public Page<Post> getFeed(String userId, int page, int size) {
-        List<Long> followingIds = followService.getFollowingIds(Long.parseLong(userId));
-        List<String> authorIds = followingIds.stream().map(String::valueOf).collect(Collectors.toList());
-        authorIds.add(userId); // include own posts
-        return postRepository.findByAuthorIdIn(authorIds,
+        // Show all posts (public feed) — not just followed users
+        return postRepository.findAll(
             PageRequest.of(page, size, Sort.by("createdAt").descending()));
     }
 
