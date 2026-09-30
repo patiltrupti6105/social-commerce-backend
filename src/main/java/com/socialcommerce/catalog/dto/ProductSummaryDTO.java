@@ -25,7 +25,7 @@ public class ProductSummaryDTO {
         dto.setReviewCount(p.getReviewCount());
         dto.setStatus(p.getStatus().name());
         if (!p.getImages().isEmpty()) {
-            dto.setPrimaryImageUrl(p.getImages().get(0).getImageUrl());
+            dto.setPrimaryImageUrl(p.getImages().iterator().next().getImageUrl());
         }
         return dto;
     }

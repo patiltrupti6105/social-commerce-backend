@@ -110,7 +110,7 @@ public class CartService {
             .productId(variant.getProduct().getId())
             .productTitle(variant.getProduct().getTitle())
             .primaryImageUrl(variant.getProduct().getImages().isEmpty() ? null
-                : variant.getProduct().getImages().get(0).getImageUrl())
+                : variant.getProduct().getImages().iterator().next().getImageUrl())
             .size(variant.getSize())
             .color(variant.getColor())
             .stockQuantity(variant.getStockQuantity())

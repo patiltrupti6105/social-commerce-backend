@@ -37,6 +37,14 @@ public class SecurityConfig {
                 .requestMatchers("GET", "/api/v1/posts/explore").permitAll()
                 .requestMatchers("GET", "/api/v1/search/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
+                // Swagger UI and OpenAPI documentation
+                .requestMatchers(
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/swagger-ui.html",
+                    "/swagger-resources/**",
+                    "/webjars/**"
+                ).permitAll()
                 // SSE — EventSource can't send headers; token validated in filter via ?token= param
                 .requestMatchers("GET", "/api/v1/notifications/subscribe").permitAll()
                 .requestMatchers("/api/v1/upload/**").authenticated()

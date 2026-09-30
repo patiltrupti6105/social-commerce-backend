@@ -1,5 +1,6 @@
 package com.socialcommerce.orders;
 
+import com.socialcommerce.common.BaseController;
 import com.socialcommerce.common.response.ApiResponse;
 import com.socialcommerce.orders.dto.*;
 import com.socialcommerce.orders.entity.Address;
@@ -7,7 +8,6 @@ import com.socialcommerce.orders.repository.AddressRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,13 +16,13 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/v1/addresses")
 @RequiredArgsConstructor
-public class AddressController {
+public class AddressController extends BaseController {
 
     private final AddressRepository addressRepository;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<AddressDTO>>> getAddresses() {
-        Long userId = currentUserId();
+        Long userId = currentUserNumericId();
         List<AddressDTO> addresses = addressRepository.findByUserId(userId)
             .stream().map(this::toDTO).collect(Collectors.toList());
         return ResponseEntity.ok(ApiResponse.success(addresses));
@@ -30,7 +30,7 @@ public class AddressController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<AddressDTO>> createAddress(@Valid @RequestBody CreateAddressRequest request) {
-        Long userId = currentUserId();
+        Long userId = currentUserNumericId();
         if (Boolean.TRUE.equals(request.getIsDefault())) {
             addressRepository.findByUserIdAndIsDefaultTrue(userId)
                 .ifPresent(addr -> { addr.setIsDefault(false); addressRepository.save(addr); });
@@ -53,7 +53,7 @@ public class AddressController {
     public ResponseEntity<ApiResponse<AddressDTO>> updateAddress(
             @PathVariable Long id,
             @Valid @RequestBody CreateAddressRequest request) {
-        Long userId = currentUserId();
+        Long userId = currentUserNumericId();
         Address address = addressRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Address not found"));
         if (!address.getUserId().equals(userId)) throw new RuntimeException("Unauthorized");
@@ -70,16 +70,12 @@ public class AddressController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteAddress(@PathVariable Long id) {
-        Long userId = currentUserId();
+        Long userId = currentUserNumericId();
         Address address = addressRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Address not found"));
         if (!address.getUserId().equals(userId)) throw new RuntimeException("Unauthorized");
         addressRepository.delete(address);
         return ResponseEntity.ok(ApiResponse.success(null));
-    }
-
-    private Long currentUserId() {
-        return Long.parseLong((String) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
     }
 
     private AddressDTO toDTO(Address a) {

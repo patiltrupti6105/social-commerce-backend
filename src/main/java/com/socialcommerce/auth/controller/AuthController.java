@@ -3,6 +3,12 @@ package com.socialcommerce.auth.controller;
 import com.socialcommerce.auth.AuthService;
 import com.socialcommerce.auth.dto.*;
 import com.socialcommerce.common.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,15 +18,26 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "User registration, login, token refresh, and password reset")
 public class AuthController {
 
     private final AuthService authService;
 
-    /**
-     * POST /api/v1/auth/register
-     * Body: { "name":"Alice", "email":"alice@mail.com", "password":"secret123", "role":"BUYER" }
-     * role is optional — defaults to BUYER
-     */
+    @Operation(
+        summary = "Register new user",
+        description = "Create a new user account with BUYER, SELLER, or ADMIN role"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "201",
+            description = "User registered successfully",
+            content = @Content(schema = @Schema(implementation = UserDTO.class))
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "400",
+            description = "Invalid input or email already exists"
+        )
+    })
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<UserDTO>> register(
             @Valid @RequestBody RegisterRequest request) {
@@ -29,11 +46,21 @@ public class AuthController {
                 .body(ApiResponse.success(user, "Registration successful"));
     }
 
-    /**
-     * POST /api/v1/auth/login
-     * Body: { "email":"alice@mail.com", "password":"secret123" }
-     * Returns: { accessToken, refreshToken, user }
-     */
+    @Operation(
+        summary = "Login",
+        description = "Authenticate user and receive JWT access token + refresh token"
+    )
+    @ApiResponses(value = {
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "Login successful",
+            content = @Content(schema = @Schema(implementation = LoginResponse.class))
+        ),
+        @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "401",
+            description = "Invalid credentials"
+        )
+    })
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(
             @Valid @RequestBody LoginRequest request) {
@@ -41,11 +68,10 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success(response, "Login successful"));
     }
 
-    /**
-     * POST /api/v1/auth/refresh
-     * Body: { "refreshToken":"<refresh token from login>" }
-     * Returns: new accessToken + refreshToken pair
-     */
+    @Operation(
+        summary = "Refresh access token",
+        description = "Get a new access token using refresh token (no authentication required)"
+    )
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<LoginResponse>> refresh(
             @RequestBody RefreshRequest body) {
@@ -53,10 +79,11 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success(response, "Token refreshed"));
     }
 
-    /**
-     * POST /api/v1/auth/logout
-     * Header: Authorization: Bearer <token>
-     */
+    @Operation(
+        summary = "Logout",
+        description = "Invalidate current session (token will be blacklisted)",
+        security = @SecurityRequirement(name = "bearerAuth")
+    )
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<?>> logout(
             @RequestHeader(value = "Authorization", required = false) String token) {
@@ -64,12 +91,10 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success(null, "Logged out successfully"));
     }
 
-    /**
-     * POST /api/v1/auth/forgot-password
-     * Body: { "email": "user@example.com" }
-     * Returns the reset token directly (for dev/demo).
-     * In production, send it by email instead.
-     */
+    @Operation(
+        summary = "Request password reset",
+        description = "Generate a password reset token (in production, this would be emailed)"
+    )
     @PostMapping("/forgot-password")
     public ResponseEntity<ApiResponse<String>> forgotPassword(
             @RequestBody java.util.Map<String, String> body) {
@@ -79,15 +104,14 @@ public class AuthController {
                     .body(ApiResponse.error("Email is required"));
         }
         String token = authService.forgotPassword(email);
-        // In production remove the token from the response and email it instead
         return ResponseEntity.ok(ApiResponse.success(token,
                 "Reset token generated. Use it at /reset-password within 1 hour."));
     }
 
-    /**
-     * POST /api/v1/auth/reset-password
-     * Body: { "token": "<reset-token>", "newPassword": "newpassword123" }
-     */
+    @Operation(
+        summary = "Reset password",
+        description = "Change password using reset token from /forgot-password"
+    )
     @PostMapping("/reset-password")
     public ResponseEntity<ApiResponse<?>> resetPassword(
             @RequestBody java.util.Map<String, String> body) {

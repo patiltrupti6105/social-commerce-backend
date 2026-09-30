@@ -1,13 +1,12 @@
 package com.socialcommerce.social;
 
-import com.socialcommerce.auth.repository.UserRepository;
+import com.socialcommerce.common.BaseController;
 import com.socialcommerce.social.document.Post;
 import com.socialcommerce.common.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,20 +14,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor
-public class PostController {
+public class PostController extends BaseController {
 
     private final PostService postService;
-    private final UserRepository userRepository;
 
     @PostMapping
     public ResponseEntity<ApiResponse<Post>> createPost(@Valid @RequestBody Post post) {
-        // JwtAuthFilter stores the numeric id as principal.
-        // Posts store authorId as UUID so feed queries are consistent.
-        String numericId = currentUserId();
-        String uuid = userRepository.findById(Long.parseLong(numericId))
-            .map(u -> u.getUuid())
-            .orElse(numericId);          // fallback: store whatever we have
-        post.setAuthorId(uuid);
+        // Store UUID as authorId - consistent with JWT principal
+        post.setAuthorId(currentUserUuid());
         return ResponseEntity.ok(ApiResponse.success(postService.createPost(post), "Post created"));
     }
 
@@ -36,8 +29,7 @@ public class PostController {
     public ResponseEntity<ApiResponse<Page<Post>>> getFeed(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        String userId = currentUserId();
-        return ResponseEntity.ok(ApiResponse.success(postService.getFeed(userId, page, size)));
+        return ResponseEntity.ok(ApiResponse.success(postService.getFeed(currentUserUuid(), page, size)));
     }
 
     @GetMapping("/explore")
@@ -47,12 +39,7 @@ public class PostController {
 
     @PutMapping("/{postId}/like")
     public ResponseEntity<ApiResponse<Post>> likePost(@PathVariable String postId) {
-        // Like stores the liker's UUID for consistency with authorId
-        String numericId = currentUserId();
-        String uuid = userRepository.findById(Long.parseLong(numericId))
-            .map(u -> u.getUuid())
-            .orElse(numericId);
-        return ResponseEntity.ok(ApiResponse.success(postService.toggleLike(postId, uuid)));
+        return ResponseEntity.ok(ApiResponse.success(postService.toggleLike(postId, currentUserUuid())));
     }
 
     @GetMapping("/user/{authorId}")
@@ -82,9 +69,5 @@ public class PostController {
     @GetMapping("/{postId}")
     public ResponseEntity<ApiResponse<Post>> getPost(@PathVariable String postId) {
         return ResponseEntity.ok(ApiResponse.success(postService.getPostById(postId)));
-    }
-
-    private String currentUserId() {
-        return (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

@@ -5,7 +5,9 @@ import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "products")
@@ -47,10 +49,14 @@ public class Product {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("id ASC")
     private List<ProductVariant> variants = new ArrayList<>();
 
+    // Set (not List) avoids Hibernate MultipleBagFetchException when both
+    // collections are fetched together via @EntityGraph.
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ProductImage> images = new ArrayList<>();
+    @OrderBy("displayOrder ASC")
+    private Set<ProductImage> images = new LinkedHashSet<>();
 
     @PrePersist
     protected void onCreate() {

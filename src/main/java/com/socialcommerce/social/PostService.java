@@ -50,7 +50,7 @@ public class PostService {
                     post.setLinkedProductTitle(product.getTitle());
                     post.setLinkedProductPrice(product.getPrice().doubleValue());
                     if (!product.getImages().isEmpty()) {
-                        post.setLinkedProductImageUrl(product.getImages().get(0).getImageUrl());
+                        post.setLinkedProductImageUrl(product.getImages().iterator().next().getImageUrl());
                     }
                 });
             } catch (Exception ignored) {
@@ -80,7 +80,7 @@ public class PostService {
             post.setLikesCount(post.getLikesCount() + 1);
             if (post.getAuthorId() != null && !post.getAuthorId().equals(userId)) {
                 try {
-                    Long authorNumericId = resolveNumericId(post.getAuthorId());
+                    Long authorNumericId = resolveUuidToNumericId(post.getAuthorId());
                     notificationService.createNotification(
                         authorNumericId,
                         "Someone liked your post",
@@ -93,13 +93,10 @@ public class PostService {
     }
 
     public Page<Post> getFeed(String userId, int page, int size) {
-        // userId is the numeric id string from the JWT principal (set by JwtAuthFilter).
-        // Posts store authorId as UUID, so we resolve to UUID for the query.
-        Long numericId = resolveNumericId(userId);
-        String currentUserUuid = userRepository.findById(numericId)
-            .map(u -> u.getUuid())
-            .orElse(userId);
-
+        // userId is now UUID from JwtAuthFilter (after migration).
+        // Convert UUID to numeric ID for MySQL follow queries.
+        Long numericId = resolveUuidToNumericId(userId);
+        
         // Get UUIDs of everyone the current user follows
         List<Long> followingIds = followService.getFollowingIds(numericId);
         List<String> authorIds = new ArrayList<>();
@@ -108,23 +105,17 @@ public class PostService {
                 .ifPresent(u -> authorIds.add(u.getUuid()));
         }
         // Always include the current user's own posts
-        authorIds.add(currentUserUuid);
+        authorIds.add(userId);  // userId is already UUID
 
         return postRepository.findByAuthorIdIn(authorIds,
             PageRequest.of(page, size, Sort.by("createdAt").descending()));
     }
 
-    /** Resolve a UUID string to the numeric User.id, or parse directly if already numeric. */
-    private Long resolveNumericId(String userId) {
-        // Try numeric first (fast path)
-        try {
-            return Long.parseLong(userId);
-        } catch (NumberFormatException e) {
-            // It's a UUID — look up by uuid column
-            return userRepository.findByUuid(userId)
-                .map(com.socialcommerce.auth.entity.User::getId)
-                .orElseThrow(() -> new RuntimeException("User not found: " + userId));
-        }
+    /** Resolve a UUID string to the numeric User.id. */
+    private Long resolveUuidToNumericId(String uuid) {
+        return userRepository.findByUuid(uuid)
+            .map(User::getId)
+            .orElseThrow(() -> new RuntimeException("User not found: " + uuid));
     }
 
     public Page<Post> getUserPosts(String authorId, int page, int size) {

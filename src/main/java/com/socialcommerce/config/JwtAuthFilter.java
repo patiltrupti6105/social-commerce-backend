@@ -43,10 +43,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     List<SimpleGrantedAuthority> authorities = List.of(
                         new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
                     );
-                    // Store numeric ID as principal so controllers can parse it as Long
+                    // Store UUID as principal for consistency with JWT subject
+                    // Controllers use UUID for all user identification
                     UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
-                            String.valueOf(user.getId()), null, authorities);
+                            user.getUuid(), null, authorities);
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 });

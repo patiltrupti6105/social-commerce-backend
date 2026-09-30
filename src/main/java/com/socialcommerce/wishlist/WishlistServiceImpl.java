@@ -60,7 +60,7 @@ public class WishlistServiceImpl implements WishlistService {
             if (p == null) return null;
 
             String imageUrl = (p.getImages() != null && !p.getImages().isEmpty())
-                ? p.getImages().get(0).getImageUrl()
+                ? p.getImages().iterator().next().getImageUrl()
                 : null;
 
             boolean inStock = p.getVariants() != null && p.getVariants().stream()
